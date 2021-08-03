@@ -23,6 +23,9 @@ class LoginPage extends Page {
   get wrongCredentialsErrorText():WebdriverIO.Element  {
     return $('h3[data-test="error"]');
   }
+  get logoutBtn():WebdriverIO.Element {
+      return $('a#logout_sidebar_link')
+  }
   /**
    * a method to encapsule automation code to interact with the page
    * e.g. to login using username and password
@@ -35,6 +38,9 @@ class LoginPage extends Page {
   async invalidCredentialsText():Promise<string> {
     const text = await (await this.wrongCredentialsErrorText).getText();
     return text;
+  }
+  async logout() {
+      await (await this.logoutBtn).click();
   }
   /**
    * overwrite specifc options to adapt it to page object
