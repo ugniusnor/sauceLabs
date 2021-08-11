@@ -15,7 +15,6 @@ class InventoryPage extends Page {
   }
   get productBlock():WebdriverIO.Element {return $( 'div .inventory_item_desc')}
 
-
   public expectedNotLogedErrorText: string =
     "Epic sadface: You can only access '/inventory.html' when you are logged in.";
 

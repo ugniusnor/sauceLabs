@@ -19,6 +19,7 @@ describe("", () => {
       await InventoryPage.open();
       const product = await InventoryPage.getProductFromCatalog(id);
       await expect(await product.name).toBe(name);
+      await expect(await product.description).toBe(description);
     });
   });
 });
