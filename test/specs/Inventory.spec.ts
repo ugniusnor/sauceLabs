@@ -24,13 +24,40 @@ describe("Inventory page catalog items tests", () => {
     });
   });
 
-  productData.forEach(({ id }) => {
-    it("Catalog items have add to card button which is working", async () => {
-      const product = await InventoryPage.getProductFromCatalog(id);
+  productData.forEach(({ id },i) => {
+    it("Catalog items have add to cart button which is working", async () => {
+      const product:Product = await InventoryPage.getProductFromCatalog(id);
       await InventoryPage.clickAddToCartButton(product);
-      const isExisting = await InventoryPage.removeFromCartButton.isExisting()
+      const isExisting:boolean = await InventoryPage.removeFromCartButton.isExisting()
       await expect(await isExisting).toBe(true);
-      await browser.debug();
+      //checking if cart icon is responding
+      const currentCartAmmount:number = parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
+      await expect(currentCartAmmount).toBe((i+1));
     });
   });
+  productData.forEach(({ id },i) => {
+    it("Catalog items have remove from cart button which is working", async () => {
+      const cartAmmountBefore=parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
+      let currentCartAmmount:number;
+      const product:Product = await InventoryPage.getProductFromCatalog(id);
+      await InventoryPage.clickRemoveFromCartButton(product);
+      const isExisting:boolean = await InventoryPage.addToCartButton.isExisting()
+      await expect(await isExisting).toBe(true);
+      if (cartAmmountBefore > 1) {
+        currentCartAmmount = parseInt(await InventoryPage.shoppingCartCurrentAmmount.getText());
+        await expect(currentCartAmmount).toBe((cartAmmountBefore - 1));
+      } else {
+        await expect(currentCartAmmount).toBe(undefined);
+      }
+      });
+  });
+
+  // it("Cart icon is responding if products are added", async ()=>{
+  //   const product = await InventoryPage.getProductFromCatalog(2);
+  //   await InventoryPage.clickAddToCartButton(product);
+    
+  // })
+ after( async ()=>{
+  await browser.debug();
+ })
 });
