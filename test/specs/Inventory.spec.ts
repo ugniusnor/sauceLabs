@@ -27,26 +27,30 @@ describe("Inventory page catalog items tests", () => {
   productData.forEach(({ id },i) => {
     it("Catalog items have add to cart button which is working", async () => {
       const product:Product = await InventoryPage.getProductFromCatalog(id);
-      await InventoryPage.clickAddToCartButton(product);
-      const isExisting:boolean = await InventoryPage.removeFromCartButton.isExisting()
-      await expect(await isExisting).toBe(true);
-      //checking if cart icon is responding
+      await InventoryPage.clickAddToCartButton(product);  
+      await expect(await InventoryPage.removeFromCartButton).toBeExisting();
+    
+      //checking if cart icon is responding with every added product
       const currentCartAmmount:number = parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
       await expect(currentCartAmmount).toBe((i+1));
     });
   });
-  productData.forEach(({ id },i) => {
+
+  productData.forEach(({ id }) => {
     it("Catalog items have remove from cart button which is working", async () => {
       const cartAmmountBefore=parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
       let currentCartAmmount:number;
+
       const product:Product = await InventoryPage.getProductFromCatalog(id);
       await InventoryPage.clickRemoveFromCartButton(product);
-      const isExisting:boolean = await InventoryPage.addToCartButton.isExisting()
-      await expect(await isExisting).toBe(true);
+      await expect(await InventoryPage.addToCartButton).toExist();
+
+      //checking if removing product from the cart updated cart icon
       if (cartAmmountBefore > 1) {
         currentCartAmmount = parseInt(await InventoryPage.shoppingCartCurrentAmmount.getText());
         await expect(currentCartAmmount).toBe((cartAmmountBefore - 1));
       } else {
+        //if product in cart are 0, there should not icon with number displayed
         await expect(currentCartAmmount).toBe(undefined);
       }
       });
