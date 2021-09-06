@@ -2,12 +2,15 @@ import { config } from "../../wdio.conf";
 import InventoryPage from "../pageobjects/inventory.page";
 import LoginWithCookies from "../support/SetLoginCookies";
 import productData from "../testData/catalaog/productsData";
-describe("Inventory page catalog items tests", () => {
+describe("User is not able to access catalog page before login", () => {
   it("User is not able to access catalog page before login", async () => {
     await InventoryPage.open();
     // await expect(await InventoryPage.notLogedErrorText()).toBe(InventoryPage.expectedNotLogedErrorText)
     await expect(await browser.getUrl()).toBe(config.baseUrl);
   });
+});
+
+describe("Catalog page is dislaying correct items", () => {
   before(() => {
     //setting cookies for next text
     InventoryPage.open();
@@ -23,45 +26,55 @@ describe("Inventory page catalog items tests", () => {
       await expect(await product.price).toBe(price);
     });
   });
+});
 
-  productData.forEach(({ id },i) => {
+describe("Add to cart functionality tests", () => {
+  productData.forEach(({ id }, i) => {
     it("Catalog items have add to cart button which is working", async () => {
-      const product:Product = await InventoryPage.getProductFromCatalog(id);
-      await InventoryPage.clickAddToCartButton(product);  
+      const product: Product = await InventoryPage.getProductFromCatalog(id);
+      await InventoryPage.clickAddToCartButton(product);
       await expect(await InventoryPage.removeFromCartButton).toBeExisting();
-    
       //checking if cart icon is responding with every added product
-      const currentCartAmmount:number = parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
-      await expect(currentCartAmmount).toBe((i+1));
+      const currentCartAmmount: number = parseInt(
+        await (await InventoryPage.shoppingCartCurrentAmmount).getText()
+      );
+      await expect(currentCartAmmount).toBe(i + 1);
     });
   });
 
   productData.forEach(({ id }) => {
     it("Catalog items have remove from cart button which is working", async () => {
-      const cartAmmountBefore=parseInt(await (await InventoryPage.shoppingCartCurrentAmmount).getText());
-      let currentCartAmmount:number;
+      const cartAmmountBefore = parseInt(
+        await (await InventoryPage.shoppingCartCurrentAmmount).getText()
+      );
+      let currentCartAmmount: number;
 
-      const product:Product = await InventoryPage.getProductFromCatalog(id);
+      const product: Product = await InventoryPage.getProductFromCatalog(id);
       await InventoryPage.clickRemoveFromCartButton(product);
       await expect(await InventoryPage.addToCartButton).toExist();
 
       //checking if removing product from the cart updated cart icon
       if (cartAmmountBefore > 1) {
-        currentCartAmmount = parseInt(await InventoryPage.shoppingCartCurrentAmmount.getText());
-        await expect(currentCartAmmount).toBe((cartAmmountBefore - 1));
+        currentCartAmmount = parseInt(
+          await InventoryPage.shoppingCartCurrentAmmount.getText()
+        );
+        await expect(currentCartAmmount).toBe(cartAmmountBefore - 1);
       } else {
         //if product in cart are 0, there should not icon with number displayed
         await expect(currentCartAmmount).toBe(undefined);
       }
-      });
+    });
   });
+});
 
-  // it("Cart icon is responding if products are added", async ()=>{
-  //   const product = await InventoryPage.getProductFromCatalog(2);
-  //   await InventoryPage.clickAddToCartButton(product);
-    
-  // })
- after( async ()=>{
-  await browser.debug();
- })
+
+
+describe("product filtering funcionality tests", async () => {
+    //filtering from z to a
+    let productDataSortedZA = productData.sort((a, b) => b.name.localeCompare(a.name));
+   
+  
+
+   
+ 
 });

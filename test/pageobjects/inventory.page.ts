@@ -34,6 +34,9 @@ class InventoryPage extends Page {
   get shoppingCartCurrentAmmount():WebdriverIO.Element{
     return $('div#shopping_cart_container a.shopping_cart_link span.shopping_cart_badge');
   }
+  get filterSelection():WebdriverIO.Element {
+    return $('select[data-test="product_sort_container"]')
+  }
   public clickedAddToCartButtonText: string = "Remove";
 
   async notLogedErrorText(): Promise<string> {
@@ -59,6 +62,9 @@ class InventoryPage extends Page {
   }
   async clickRemoveFromCartButton(calatogItem: Product) {
     this.removeFromCartButton.click();
+  }
+  async selectFilterBy(selectBy:string, optionValue:string) {
+     await (await this.filterSelection).selectByAttribute(selectBy ,optionValue);
   }
   open() {
     return super.open("inventory.html");
