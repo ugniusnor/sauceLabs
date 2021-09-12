@@ -1,5 +1,6 @@
 import Page from "./page";
-
+import inventoryPageIds from "./PageObjecrsId/inventoryPageIds";
+import InventoryPageId from "./PageObjecrsId/inventoryPageIds";
 /**
  * sub page containing specific selectors and methods for a specific page
  */
@@ -8,36 +9,40 @@ class InventoryPage extends Page {
    * define selectors using getter methods
    */
   get wrongCredentialsErrorText(): WebdriverIO.Element {
-    return $('h3[data-test="error"]');
+    return $(InventoryPageId.wrongCredentialsText);
   }
   get catalogItemTitle(): string {
-    return `div.inventory_item_label div.inventory_item_name`;
+    return InventoryPageId.catalogItemTitle;
   }
   get catalogItemDescription(): string {
-    return `div.inventory_item_label div.inventory_item_desc`;
+    return InventoryPageId.catalogItemDescription;
   }
   get productBlock(): WebdriverIO.Element {
-    return $("div .inventory_item_desc");
+    return $(InventoryPageId.productBlock);
   }
-
+  get allProducts(): WebdriverIO.ElementArray {
+    return $$(InventoryPageId.allProducts);
+  }
   get addToCartButton(): WebdriverIO.Element {
-    return $("div.pricebar button.btn.btn_primary.btn_small.btn_inventory");
+    return $(InventoryPageId.addToCartButton);
   }
   get removeFromCartButton(): WebdriverIO.Element {
-    return $("div.pricebar button.btn.btn_secondary.btn_small.btn_inventory");
+    return $(InventoryPageId.removeFromCartButton);
   }
   public expectedNotLogedErrorText: string =
-    "Epic sadface: You can only access '/inventory.html' when you are logged in.";
+  InventoryPageId.expectedNotLogedErrorText;
   get catalogItemPrice(): string {
-    return "div.pricebar div.inventory_item_price";
+    return InventoryPageId.catalogItemPrice;
   }
-  get shoppingCartCurrentAmmount():WebdriverIO.Element{
-    return $('div#shopping_cart_container a.shopping_cart_link span.shopping_cart_badge');
+  get shoppingCartCurrentAmmount(): WebdriverIO.Element {
+    return $(
+     inventoryPageIds.shoppingCartCurrentAmmount
+    );
   }
-  get filterSelection():WebdriverIO.Element {
-    return $('select[data-test="product_sort_container"]')
+  get filterSelection(): WebdriverIO.Element {
+    return $(InventoryPageId.filterSelection);
   }
-  public clickedAddToCartButtonText: string = "Remove";
+  public clickedAddToCartButtonText: string = inventoryPageIds.clickedAddToCartButtonText;
 
   async notLogedErrorText(): Promise<string> {
     const text = await (await this.wrongCredentialsErrorText).getText();
@@ -45,7 +50,8 @@ class InventoryPage extends Page {
   }
 
   async getProductFromCatalog(id: number) {
-    const uniqueId = $(`a#item_${id}_title_link div`);
+    // const uniqueId = $(`a#item_${id}_title_link div`);
+    const uniqueId = $(InventoryPageId.uniqueItemId(id));
     const parent = (
       await (await uniqueId.parentElement()).parentElement()
     ).parentElement();
@@ -63,8 +69,31 @@ class InventoryPage extends Page {
   async clickRemoveFromCartButton(calatogItem: Product) {
     this.removeFromCartButton.click();
   }
-  async selectFilterBy(selectBy:string, optionValue:string) {
-     await (await this.filterSelection).selectByAttribute(selectBy ,optionValue);
+  async selectFilterBy(selectBy: string, optionValue: string) {
+    await (await this.filterSelection).selectByAttribute(selectBy, optionValue);
+  }
+  async getAllProductsNamesAndPrices() {
+    const arrayOfProducts = await this.allProducts;
+    let arrayOfProductNames = [];
+    for (let i = 0; i < arrayOfProducts.length; i++) {
+      const fullPrice = await (
+        await arrayOfProducts[i].$(
+          InventoryPageId.inventoryItemPrice
+        )
+      ).getText();
+      const product: { name: string; price: number } = {
+        name: await arrayOfProducts[i]
+          .$(
+            InventoryPageId.inventoryItemName
+          )
+          .getText(),
+        price: parseFloat(fullPrice.substring(1)),
+      };
+      // arrayOfProductNames.push(await arrayOfProducts[i].$('div.inventory_item_description div.inventory_item_label a div.inventory_item_name').getText())
+      arrayOfProductNames.push(product);
+    }
+
+    return arrayOfProductNames;
   }
   open() {
     return super.open("inventory.html");

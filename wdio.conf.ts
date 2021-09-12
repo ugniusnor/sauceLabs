@@ -30,6 +30,9 @@ export const config: WebdriverIO.Config = {
         ],
         catalog: [
             './test/specs/Inventory.spec.ts'
+        ],
+        checkout: [
+            './test/specs/Checkout.spec.ts'
         ]
     },
     // Patterns to exclude.

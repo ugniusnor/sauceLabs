@@ -67,14 +67,36 @@ describe("Add to cart functionality tests", () => {
   });
 });
 
-
-
 describe("product filtering funcionality tests", async () => {
-    //filtering from z to a
-    let productDataSortedZA = productData.sort((a, b) => b.name.localeCompare(a.name));
-   
-  
+  it("Filtering product from z to a", async () => {
+    //geting original list of items and sorting it from z to a manualy
+    const itemsSortedAZ = await InventoryPage.getAllProductsNamesAndPrices();
+    itemsSortedAZ.sort((a, b) => b.name.localeCompare(a.name));
+    //sorting items on the page and getting sorted list of products
+    await InventoryPage.selectFilterBy("value", "za");
+    const itemsSortedZA = await InventoryPage.getAllProductsNamesAndPrices();
+    //checking if list was sorted correctly
+    console.log(itemsSortedZA.length, "length");
+    await expect(itemsSortedZA.length).toStrictEqual(itemsSortedZA.length);
+    for (let i = 0; i <= itemsSortedZA.length; i++) {
+      await expect(itemsSortedZA[i]).toStrictEqual(itemsSortedAZ[i]);
+    }
+  });
+  it("Filtering product from lowest price to highest price", async () => {
+    //geting original list of items and sorting it from high price to low price manualy
+    const itemListOriginal: { name: string; price: number }[] =
+      await InventoryPage.getAllProductsNamesAndPrices();
+    itemListOriginal.sort((a, b) => a.price - b.price);
+    console.log("log,", itemListOriginal);
 
-   
- 
+    //sorting items on the page and getting sorted list of products
+    await InventoryPage.selectFilterBy("value", "lohi");
+    const itemsSortedHighToLowPrice =
+      await InventoryPage.getAllProductsNamesAndPrices();
+    for (let i = 0; i < itemListOriginal.length; i++) {
+      await expect(itemsSortedHighToLowPrice[i].price).toBe(
+        itemListOriginal[i].price
+      );
+    }
+  });
 });
